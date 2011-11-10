@@ -1,0 +1,23 @@
+SkunkJS implements classes and decorators for node.js
+
+Licence: MIT
+
+Example:
+
+class = require("skunkjs").class
+
+Foo = class({
+
+    init : function() {
+        this.a = a;
+    }
+
+    doSomething : function(b) {
+        return this.a + b;
+    }
+
+}).$public();
+
+
+f = Foo(10);
+f.doSomething(10); //ok this is a terrible example, I should stick with that car analogy..
