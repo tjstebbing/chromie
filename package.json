@@ -1,0 +1,16 @@
+{
+  "name": "moufette",
+  "version": "0.0.1",
+  "description": "Client-side application framework",
+  "keywords": ["framework", "web", "moufette"],
+  "repository": "git://github.com/pomke/Moufette",
+  "author": "Pomke <pomke@pangur.com.au>, Mariofrog <mario@pangur.com.au>",
+  "dependencies": {
+    "connect": "1.8.x",
+    "ender": "*",
+  },
+  "devDependencies": {
+  },
+  "main": "index",
+  "engines": { "node": ">= 0.4.9" }
+}
