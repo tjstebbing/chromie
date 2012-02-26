@@ -7,8 +7,8 @@ chromie = {version : 0.1};
 // Inspired by John Resig, base2 and Prototype
 (function(){
   var initializing = false, fnTest = /xyz/.test(function(){xyz;}) ? /\b_super\b/ : /.*/;
-  this.Type = function(){};
-  Type.extend = function(prop) {
+  chromie.Type = function(){};
+  chromie.Type.extend = function(prop) {
     var _super = this.prototype;
     initializing = true;
     var prototype = new this();
@@ -41,10 +41,8 @@ chromie = {version : 0.1};
     Type.extend = arguments.callee;
     return Type;
   };
-  this.Type = Type.extend({});
+  chromie.Type = chromie.Type.extend({});
 })();
-
-chromie.Type = Type;
 
 chromie.Model = chromie.Type.extend({
 
@@ -98,19 +96,4 @@ chromie.Model = chromie.Type.extend({
     }   
 
 });
-
-Car = chromie.Model.extend({
-    horn : 10,  //default values
-    wheels : 2, //default values
-    init : function() {
-        console.log("init car");
-    }
-
-});
-
-c = Car({horn:1});
-console.log(c.horn, "should be 1 not 10");
-
-
-
 
