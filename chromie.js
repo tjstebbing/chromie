@@ -1,4 +1,52 @@
-Model = Type.extend({
+/* Chromie is (c) 2012 Pangur Pty Ltd 
+ * Chromie is available for use under the MIT license
+ */
+
+chromie = {version : 0.1};
+
+// Inspired by John Resig, base2 and Prototype
+(function(){
+  var initializing = false, fnTest = /xyz/.test(function(){xyz;}) ? /\b_super\b/ : /.*/;
+  this.Type = function(){};
+  Type.extend = function(prop) {
+    var _super = this.prototype;
+    initializing = true;
+    var prototype = new this();
+    initializing = false;
+    for (var name in prop) {
+      prototype[name] = name == "init" && typeof prop[name] == "function" && 
+        typeof _super[name] == "function" ?
+        (function(super_init, init){
+          function callinit() {
+            super_init.apply(this, arguments);
+            init.apply(this, arguments);
+          }
+          return callinit;
+        })(_super[name], prop[name]) :
+        prop[name];
+    }
+    var marker = {};
+    function Type(mark, args) {
+      if ( !initializing ) {
+        if ( this instanceof Type ) {
+          if ( this.init )
+            this.init.apply(this, mark===marker ? args : arguments);
+        } else {
+          return new Type(marker, arguments);
+        }
+      }
+    }
+    Type.prototype = prototype;
+    Type.prototype.constructor = Type;
+    Type.extend = arguments.callee;
+    return Type;
+  };
+  this.Type = Type.extend({});
+})();
+
+chromie.Type = Type;
+
+chromie.Model = chromie.Type.extend({
 
     init : function(attrs /*extra options mapping*/) {
         var opts = arguments.lenth > 1 ? arguments[1] : {}; 
@@ -51,7 +99,7 @@ Model = Type.extend({
 
 });
 
-Car = Model.extend({
+Car = chromie.Model.extend({
     horn : 10,  //default values
     wheels : 2, //default values
     init : function() {
@@ -62,5 +110,7 @@ Car = Model.extend({
 
 c = Car({horn:1});
 console.log(c.horn, "should be 1 not 10");
+
+
 
 
