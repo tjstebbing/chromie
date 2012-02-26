@@ -1,23 +1,13 @@
-SkunkJS implements classes and decorators for node.js
-
+CHROMIE
 Licence: MIT
 
-Example:
+Chromie is a client side javascript library providing a Type 
+system and MVC model designed to bring order to complex applications.
 
-class = require("skunkjs").class
+It aims to maintain some simple rules of sound programming 
+which in turn maintain clear lines of abstraction.
 
-Foo = class({
+Chromie is designed to work with any UI library and can easily
+be retro-fitted, bringing order to existing applications, or used
+from the outset to structure projects of any size.
 
-    init : function() {
-        this.a = a;
-    }
-
-    doSomething : function(b) {
-        return this.a + b;
-    }
-
-}).$public();
-
-
-f = Foo(10);
-f.doSomething(10); //ok this is a terrible example, I should stick with that car analogy..
