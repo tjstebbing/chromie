@@ -1,19 +1,13 @@
 Model = Type.extend({
 
-    init : function(/* initial attributes array */) {
-        this.watchers = {'change' : []};
-        this.attrs = {};
-        //set default attributes
-        for(var key in this) {
-            if(this.hasOwnProperty(key) && typeof this[key] != 'function') {
-                this.attrs[key] = this[key];
-            }
-        }
+    init : function(attrs /*extra options mapping*/) {
+        var opts = arguments.lenth > 1 ? arguments[1] : {}; 
+        if(opts.syncBackend) this.syncBackend = opts.syncBackend;
+        this._watchers = {'change' : []};
         //set initial attributes
-        if(arguments.length > 0) {
-            var attrs = arguments[0];
+        if(attrs) {
             for(k in attrs) {
-                this.attrs[k] = attrs[k];
+                this[k] = attrs[k];
             }
         }
     },
@@ -25,7 +19,6 @@ Model = Type.extend({
          *
          * all callbacks are called with two arguments, the model and the event
          */
-        this.watchers;  
     },
 
     unwatch : function() {
@@ -35,25 +28,26 @@ Model = Type.extend({
     fire : function(key) {
         var q = this.watchers[key] || [];
         for(var i=0; i < q.length; i++) {
-            setTimeout(q[i], 0, this);
+            setTimeout(q[i], 0, this, key);
         }
     },
  
-    get : function(key) { return this.attrs[key]; },
-
-    set : function(mapping /* optional options array */) {
+    update : function(mapping /* optional options array */) {
          /* options array can contain:
           * silent : true   this will update without calling any watchers
           */
-        var opts = arguments.lenth < 2 ? arguments[1] : { silent : false }; 
+        var opts = arguments.lenth > 1 ? arguments[1] : { silent : false }; 
         if(arguments.length > 0) {
             var attrs = arguments[0];
-            for(k in attrs) {
-                this.attrs[k] = attrs[k];
+            for(k in mapping) {
+                this[k] = mapping[k];
+            }
+            if(this.syncBackend) {
+                this.syncBackend.sync(changes);
             }
         }
         
-    },   
+    }   
 
 });
 
@@ -67,6 +61,6 @@ Car = Model.extend({
 });
 
 c = Car({horn:1});
-console.log(c.get('horn'), "should be 1 not 10");
+console.log(c.horn, "should be 1 not 10");
 
 
