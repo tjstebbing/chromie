@@ -2,7 +2,7 @@ CHROMIE
 Licence: MIT
 
 Chromie is a client side javascript library providing a Type 
-system and MVC model designed to bring order to complex applications.
+system and MVC pattern designed to bring order to complex applications.
 
 It aims to maintain some simple rules of sound programming 
 which in turn maintain clear lines of abstraction.

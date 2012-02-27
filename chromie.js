@@ -49,7 +49,7 @@ chromie.Model = chromie.Type.extend({
     init : function(attrs /*extra options mapping*/) {
         var opts = arguments.lenth > 1 ? arguments[1] : {}; 
         if(opts.syncBackend) this.syncBackend = opts.syncBackend;
-        this._watchers = {'change' : []};
+        this._watchers = {changed : []};
         //set initial attributes
         if(attrs) {
             for(k in attrs) {
@@ -58,19 +58,29 @@ chromie.Model = chromie.Type.extend({
         }
     },
 
-    watch : function(/* callback or attributeName, callback */) {
-        /* watch(func) will be called on any change
+    watch : function() {
+        /* watch('changed', func) will be called on any change
+         * watch(func) is a shortcut for watch('changed', func)
          * watch('foo', func) will be called if foo changes
-         * watch('foo bar', func) will be called if foo or bar change
-         *
-         * all callbacks are called with two arguments, the model and the event
+         * all callbacks are called with two arguments, the model and changes 
          */
+        if(arguments.length == 1) {
+            this._watchers['changed'].push(arguments[0]);
+        } else if( arguments.length == 2) {
+            this._watchers[arguments[0]].push(arguments[1]);
+        }
     },
 
     unwatch : function() {
-
+        /* unwatch('changed', func) will be called on any change
+         * unwatch(func) is a shortcut for watch('changed', func)
+         * unwatch('foo', func) will be called if foo changes
+         * all callbacks are called with two arguments, the model and changes 
+         */
+ 
     },
 
+  
     fire : function(key) {
         var q = this.watchers[key] || [];
         for(var i=0; i < q.length; i++) {
