@@ -52,7 +52,7 @@ chromie.Model = chromie.Type.extend({
         this._watchers = {changed : []};
         //set initial attributes
         if(attrs) {
-            for(k in attrs) {
+            for(var k in attrs) {
                 this[k] = attrs[k];
             }
         }
@@ -81,9 +81,17 @@ chromie.Model = chromie.Type.extend({
 
   
     fire : function(key, updates) {
+        console.log("fire:", this, key, updates);
         var q = this._watchers[key] || [];
         for(var i=0; i < q.length; i++) {
-            setTimeout(q[i], 0, this, updates);
+            //setTimeout(q[i], 0, this, updates);
+            this.seq = (this.seq||0)+1;
+            (function(cb,model,seq){
+                setTimeout(function(){
+                    console.log("event:", model, key, updates, seq);
+                    cb(model, updates);
+                }, 0);
+            })(q[i], this, this.seq);
         }
     },
  
@@ -96,14 +104,14 @@ chromie.Model = chromie.Type.extend({
             var attrs = arguments[0];
             //discard any updates that result in no change
             var validatedAttrs = {};
-            for(k in attrs) {
+            for(var k in attrs) {
                 if(this[k] != attrs[k]) { //TODO deep eq check
                     validatedAttrs[k] = attrs[k];
                 }
             }
             //call watchers
             var count = 0;
-            for(k in validatedAttrs) {
+            for(var k in validatedAttrs) {
                 count += 1;
                 this.fire(k, validatedAttrs);
                 this[k] = attrs[k];
@@ -144,13 +152,13 @@ chromie.View = chromie.Type.extend({
 
     init : function(options) {
         //set any models passed so we can connect handlers
-        if(options.models) {
-            for(k in options.models) {
+        if(options && options.models) {
+            for(var k in options.models) {
                 this[k] = options.models[k];
             }
         }
         //connect any model:event handlers
-        for(k in this) {
+        for(var k in this) {
             var bits = k.split(':');
             if(bits.length > 1) {
                 try {
