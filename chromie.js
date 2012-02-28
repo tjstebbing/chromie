@@ -29,8 +29,10 @@ chromie = {version : 0.1};
     function Type(mark, args) {
       if ( !initializing ) {
         if ( this instanceof Type ) {
-          if ( this.init )
+          if ( this.init ) {
             this.init.apply(this, mark===marker ? args : arguments);
+            if ( this._afterInit ) this._afterInit();
+          }
         } else {
           return new Type(marker, arguments);
         }
@@ -165,7 +167,7 @@ chromie.Collection = chromie.Model.extend({
         var src = this._options.viewOf;
         src.watch('add', function(m, updates) {
             if(this._options.viewFilter) updates = updates.filter(this._options.viewFilter);
-            this._push.apply(this, updates);
+            if(updates.length > 0) this._push.apply(this, updates);
         }.bind(this));
         //TODO hookup splice, pop, etc.
     },
@@ -228,6 +230,9 @@ chromie.View = chromie.Type.extend({
                 this[k] = options.models[k];
             }
         }
+    },
+
+    _afterInit : function() {
         //connect any model:event handlers
         for(var k in this) {
             var bits = k.split(':');
@@ -258,7 +263,9 @@ if(debug) {
 
 
     HorseView = chromie.View.extend({
-        
+       
+        init : function() { console.log("new horse view watching "+
+                   arguments[0].models.horse.name);},
         'horse:shoes' : function(horse, changes) {
             console.log(horse.name+"'s shoes have changed to", changes.shoes);
         }
@@ -288,12 +295,24 @@ if(debug) {
 
     });
 
-
+    /* TODO LIST
+     *
+     * templates to coordinate views {{view model }} {{ model.foo }} 
+     *
+     * view/model? track their watchers so they can destroy themselves and
+     * remove themselves from collections etc?
+     *
+     * event order with deep chains is not right:
+     *
+     * watcher which calls other watchers which add events followed by 
+     * chromie.queue which should fire the new events does not because 
+     * of the setTimeout
+     */
     herd = chromie.Collection();
     mares = herd.filter(function(h) { return h.sex == 'female'; });
-    mares.watch('add', function(){console.log(arguments)});
-    HerdView({name:"HERD", models:{herd:herd}});
-    HerdView({name:"MARES", models:{herd:mares}});
+    herdview = HerdView({name:"HERD", models:{herd:herd}});
+    mareview = HerdView({name:"MARES", models:{herd:mares}});
+
     h1 = Horse({name : 'Epona', shoes:4, sex : 'female'});
     h2 = Horse({name : 'Bella', shoes:4, sex : 'female'});
     h3 = Horse({name : 'Clara', shoes:0, sex : 'female'});
@@ -302,8 +321,13 @@ if(debug) {
     h5 = Horse({name : 'Bronwyn', shoes:4, sex : 'female'});
 
     chromie.queue(function(){h1.update({shoes:8});});
-    chromie.queue(function(){h1.update({shoes:8});});
-    chromie.queue(function(){herd.push(h4, h5);});
+    // what are we missing here? neither option seems to do the useful thing.
+    // perhaps this is why sproutcore has an event loop? 
+    if(1) {
+        chromie.queue(function(){herd.push(h4, h5);});
+    } else {
+        herd.push(h4, h5);;
+    }
     chromie.queue(function(){herd.map(function(h, n){ h.update({shoes:n}); }); });
 
 }
