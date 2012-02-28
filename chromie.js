@@ -44,6 +44,11 @@ chromie = {version : 0.1};
   chromie.Type = chromie.Type.extend({});
 })();
 
+chromie.queue = function(f) {
+    setTimeout(f, 0);
+};
+
+
 chromie.Model = chromie.Type.extend({
 
     init : function(attrs /*extra options mapping*/) {
@@ -81,14 +86,14 @@ chromie.Model = chromie.Type.extend({
 
   
     fire : function(key, updates) {
-        console.log("fire:", this, key, updates);
+        //console.log("fire:", this, key, updates);
         var q = this._watchers[key] || [];
         for(var i=0; i < q.length; i++) {
             //setTimeout(q[i], 0, this, updates);
             this.seq = (this.seq||0)+1;
             (function(cb,model,seq){
                 setTimeout(function(){
-                    console.log("event:", model, key, updates, seq);
+                    //console.log("event:", model, key, updates, seq);
                     cb(model, updates);
                 }, 0);
             })(q[i], this, this.seq);
@@ -128,23 +133,89 @@ chromie.Model = chromie.Type.extend({
 });
 
 chromie.Collection = chromie.Model.extend({
-
+    /* A collection is a model which contains other models and who's api
+     * borrows many useful methods of an Array.
+     *
+     * Collections can be configured as a view (in the database sense) of
+     * another collection by passing that collection and optionally a filter
+     * function, ie:
+     *
+     * Collection({viewOf : srcCollection, viewFilter : func});
+     *
+     * As a convenience the filter method takes a filter function and optional
+     * Collection sub type and returns a filtered collection:
+     *
+     * children = people.filter(function(person){return person.age<13;});
+     *
+     * children will now be a collection which stays up to date with people
+     * and only contains persons under the age of 13.
+     *
+     * It is important to note that Collections which are viewing another 
+     * collection in this way are immutable.
+     */
     init : function(options) {
-        this.items = [];
+        this._items = [];
+        this._options = options;
+        if(this._options && this._options.viewOf) this.setupViewing();
     },
 
-    push : function(/*item1, item2, ...*/) {
+    setupViewing : function() {
+        //This collection is a view of another collection, we need to watch
+        //that collection for changes and update ourselves.
+        var src = this._options.viewOf;
+        src.watch('add', function(m, updates) {
+            if(this._options.viewFilter) updates = updates.filter(this._options.viewFilter);
+            this._push.apply(this, updates);
+        }.bind(this));
+        //TODO hookup splice, pop, etc.
+    },
+
+    mutablityCheck : function() {
+        if(this._options && this._options.viewOf) throw "collection is immutable";   
+    },
+
+    _push : function(/*item1, item2, ...*/) {
         var newItems = [];
         for(var i=0; i < arguments.length; i++) {
             newItems.push(arguments[i]);
         }
-        this.items = this.items.concat(newItems);
+        this._items = this._items.concat(newItems);
         this.fire('add', newItems);
+        this.fire('changed', ['add', newItems]);
     },
 
-    pop : function() { },
-    shift : function() { },
-    splice : function() { },
+    push : function(/*item1, item2, ...*/) {
+        this.mutablityCheck();
+        this._push.apply(this, arguments);
+    },
+
+    map : function(f) {
+        //apply a function to each item in the container
+        return this._items.map(f);
+    },
+
+    filter : function(f/*, Collection Type, defaults to this.prototype */) {
+        //filter the container returning a new container who's contents 
+        //will stay up to date with the contents of this container using
+        //the supplied filter function.
+        var cont = arguments.length==1 ? this.__proto__.constructor:arguments[1];
+        return cont({ viewOf : this, viewFilter : f});
+    },
+
+    pop : function() { 
+        this.mutablityCheck();
+        this._pop.apply(this, arguments);
+    },
+    
+    shift : function() { 
+        this.mutablityCheck();
+        this._shift.apply(this, arguments);
+    },
+
+    splice : function() { 
+        this.mutablityCheck();
+        this._splice.apply(this, arguments);
+    },
     
 });
 
@@ -162,7 +233,7 @@ chromie.View = chromie.Type.extend({
             var bits = k.split(':');
             if(bits.length > 1) {
                 try {
-                    this[bits[0]].watch(bits[1], this[k]);
+                    this[bits[0]].watch(bits[1], this[k].bind(this));
                 } catch(e) {
                     console.log("err connecting", k);
                 }
@@ -181,6 +252,7 @@ if(debug) {
         name : 'nag',
         water : 10,
         food : 10,
+        sex : 'male',
         shoes : 0
     });
 
@@ -191,11 +263,14 @@ if(debug) {
             console.log(horse.name+"'s shoes have changed to", changes.shoes);
         }
 
-
     });
 
     HerdView = chromie.View.extend({
-       
+     
+        init : function(options) {
+            this.name = options.name || 'herd';
+        },
+
         'herd:add' : function(herd, newHorses) {
             if(!this.horseViews) this.horseViews = [];
             for(var i=0; i < newHorses.length; i++) {
@@ -203,11 +278,11 @@ if(debug) {
             }
             var names = newHorses.map(function(h) { return h.name; });
             if(names.length == 1) {
-                console.log("A new horse, "+names[0]+" has joined the herd.");
+                console.log(this.name, "A new horse, "+names[0]+" has joined the herd.");
             } else {
                 var n1 = names.slice(0,-1).join(', ');
                 var names = n1+" and "+names.slice(-1)[0];
-                console.log(newHorses.length+" new horses, "+names+", have joined the herd.");
+                console.log(this.name, newHorses.length+" new horses, "+names+" have joined the herd.");
             }
         }
 
@@ -215,14 +290,21 @@ if(debug) {
 
 
     herd = chromie.Collection();
-    HerdView({models:{herd:herd}});
-    h1 = Horse({name : 'Epona', shoes:4});
-    h2 = Horse({name : 'Bella', shoes:4});
-    h3 = Horse({name : 'Clara', shoes:0});
+    mares = herd.filter(function(h) { return h.sex == 'female'; });
+    mares.watch('add', function(){console.log(arguments)});
+    HerdView({name:"HERD", models:{herd:herd}});
+    HerdView({name:"MARES", models:{herd:mares}});
+    h1 = Horse({name : 'Epona', shoes:4, sex : 'female'});
+    h2 = Horse({name : 'Bella', shoes:4, sex : 'female'});
+    h3 = Horse({name : 'Clara', shoes:0, sex : 'female'});
     herd.push(h1,h2,h3);
     h4 = Horse({name : 'Bruce', shoes:2});
-    herd.push(h4);
-    h1.update({shoes:8});
+    h5 = Horse({name : 'Bronwyn', shoes:4, sex : 'female'});
+
+    chromie.queue(function(){h1.update({shoes:8});});
+    chromie.queue(function(){h1.update({shoes:8});});
+    chromie.queue(function(){herd.push(h4, h5);});
+    chromie.queue(function(){herd.map(function(h, n){ h.update({shoes:n}); }); });
 
 }
 
