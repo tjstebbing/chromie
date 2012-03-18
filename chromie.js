@@ -3,6 +3,7 @@
  */
 
 chromie = {version : 0.1};
+chromie.syncBackend = null;
 
 // Inspired by John Resig, base2 and Prototype
 (function(){
@@ -126,7 +127,9 @@ chromie.Model = chromie.Type.extend({
             if(count) this.fire('changed', validatedAttrs);
             
             if(this.syncBackend) {
-                this.syncBackend.sync(this, changes);
+                this.syncBackend.sync(this, validatedAttrs);
+            } else if (chromie.syncBackend) {
+                chromie.syncBackend.sync(this, validatedAttrs);
             }
         }
         
@@ -308,6 +311,14 @@ if(debug) {
      * chromie.queue which should fire the new events does not because 
      * of the setTimeout
      */
+
+    Backend = chromie.Type.extend({ 
+        sync : function(obj, changes) {
+            console.log("CHANGE", obj, changes);
+        }
+    });
+    chromie.syncBackend = Backend();
+
     herd = chromie.Collection();
     mares = herd.filter(function(h) { return h.sex == 'female'; });
     herdview = HerdView({name:"HERD", models:{herd:herd}});
