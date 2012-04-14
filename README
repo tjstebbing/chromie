@@ -50,6 +50,7 @@ portal.avatarFactory = function(user, avatar) {
     avatar.set({username : user.username, email : user.email});
     avatar.watch('email', sendEmailConfirmation);
 };
+app.use(portal);
 
 example client setup:
 ======================
