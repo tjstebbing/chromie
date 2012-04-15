@@ -1,7 +1,5 @@
 
-<div style='width:600px; margin:auto;'>
 ![Chromie](https://github.com/pomke/chromie/raw/master/docs/chromie-logo.png)
-</div>
 
 ## Concepts:
 
