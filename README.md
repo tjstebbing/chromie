@@ -1,5 +1,6 @@
+# chromie
 
-CONCEPTS:
+## Concepts:
 
 All users have an avatar, on the server and on their client which are the broker
 between both, the server can cache avatars in memory, store them in memcache for
@@ -11,13 +12,13 @@ Avatars exist on the server and the client and expose services to the other side
 IDEA: The could also have 'live attributes' like a Model that can be set/watched at
 each end.
 
-on the client:
+### on the client:
 
 The idea here is that the browser can use whatever Model/Collection/manual whatever
 it likes, ember, chromie models etc, they talk to services via their api. you
 could use this directly with jquery if you wanted to o.O
 
-on the server:
+### on the server:
 
 Services can be local to the avatar server and invoked directly, or ideally be
 stand-alone services which can go up or down, and the avatar server connects to
@@ -35,9 +36,9 @@ IDEA: and optionally a URL/Protocol pair if the client should connect directly
 to that service rather than through the avatar server (just gives more 
 flexibility) 
 
-example server setup:
-======================
+### example server setup:
 
+```javascript
 app = connect();
 portal = chromie.Portal("poll" /* or "socket.io" */);
 portal.credentialCheckers = [checkCookie, checkPassword];
@@ -51,11 +52,11 @@ portal.avatarFactory = function(user, avatar) {
     avatar.watch('email', sendEmailConfirmation);
 };
 app.use(portal);
+```
 
-example client setup:
-======================
+### example client setup:
 
-
+```javascript
 var connectionCheck = function(av) {
     if(!av.authenticated) {
         //Show auth dialog
@@ -71,21 +72,24 @@ $av.onDisconnect(connectionCheck);
 $av.addService("chat", {sendMessage : sendMessage, sendFile : sendFile});
 $av.addService("friends", {newFriend : newFriend});
 $av.connect();
-
+```
 
 client can: 
 
+```javascript
 $av.set({username : "Pomke"}, function(r) {...}); 
 $av.forum.createPost({ title : 'test post', body : 'something'}, function(r){});
-
+```
 
 server can:
 
+```javascript
 avatar.friends.newFriend(args, optionalCallback);
 avatar.set({username : "Melanie"});
+```
 
 
-TRANSPORTS:
+## transports
 
 There would be two transports, Poll and socket.io:
 

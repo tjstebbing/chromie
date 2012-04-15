@@ -1,0 +1,23 @@
+{
+  "name": "chromie",
+  "description": "Framework for building scalable web applications",
+  "version": "0.0.1",
+  "homepage": "https://github.com/pomke/chromie",
+  "authors": [
+    "Pomke"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/pomke/chromie.git"
+  },
+  "main": "./lib",
+  "dependencies": {
+    "underscore" : "1.3.x"
+  },
+  "devDependencies": {
+    "nodeunit" : "1.7.x"
+  },
+  "engines": {
+    "node": "*"
+  }
+}
