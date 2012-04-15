@@ -1,4 +1,6 @@
-# chromie
+
+
+![Chromie](https://github.com/pomke/chromie/raw/master/docs/chromie-logo.png)
 
 ## Concepts:
 
