@@ -1,5 +1,5 @@
 
-![Chromie](https://github.com/pomke/chromie/raw/master/docs/chromie-logo.png)
+![Chromie](https://github.com/pomke/chromie/raw/master/docs/chromie-logo-github.png)
 
 ## Concepts:
 
