@@ -1,11 +1,30 @@
-chromie = require("./lib");
-
-queue = function(f) {
-    setTimeout(f, 0);
-};
+//connect = require("connect");
+//app = connect();
+//sessions = new
+//
+//portal = chromie.Portal(app, new connect.MemoryStore());
+//
+//portal.credentialCheckers = [checkCookie, checkPassword];
+//portal.avatarFactory = function(user, avatar) {
+//    avatar.addService("forum", require("forumService").service);
+//    avatar.addService("chat", require("chatService").service);
+//
+//    // if avatars worked like chromie models we culd have 'live' attributes at
+//    // both ends like twisted PB RemoteReference..  
+//    avatar.set({username : user.username, email : user.email});
+//    avatar.watch('email', sendEmailConfirmation);
+//};
+//app.use(portal);
+//
+//
 
 if(require.main == module) {
-    
+    chromie = require("./lib");
+
+    queue = function(f) {
+        setTimeout(f, 0);
+    };
+
     Horse = chromie.Model.extend({
         name : 'nag',
           water : 10,
