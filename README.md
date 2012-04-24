@@ -51,11 +51,11 @@ todo
 var app = require("connect")();
 var chromie = require("chromie");
 
-var portal = chromie.Portal(app, function(data) {
+var portal = chromie.Portal(app, { avatarFactory : function(data) {
         data.$av.addService("authentication", authService);
         data.$av.addService("forum", forumService);
         data.$av.addService("core", myCoreService);
-        });
+        }});
 
 app.listen(8000);
 ```
