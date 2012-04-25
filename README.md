@@ -71,3 +71,15 @@ chromie.connect("http://example.com/service", function(data) {
     });
 ```
 
+The $av object at either end of the connection provides a shim for accessing
+added services, the server in the above example can call: 
+
+```javascript
+$av.alerts.alert("this is a message");
+```
+
+or the client might call:
+
+```javascript
+$av.forum.listForums(function(results) { /* do something */ });
+```
