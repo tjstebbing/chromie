@@ -1,6 +1,8 @@
 var $av = require('chromie/avatar');
 window.$av = $av;
 
+//Create a knockout observable object that the avatar will update with
+//state changes.
 var avStatus = (function() { this.state = ko.observable("state"); })();
 
 $av.connect('http://localhost:8000', function() {
@@ -15,5 +17,6 @@ $av.connect('http://localhost:8000', function() {
     echoProxy.send("echo", "Chromie was here!").then(function(data) {
         console.log("Data from the server:", data);
     });
+    $av.disconnect();
 }, avStatus);
 
