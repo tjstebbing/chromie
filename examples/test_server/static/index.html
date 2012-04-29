@@ -2,9 +2,14 @@
 <html lang='en'>
     <head>
         <script src='/socket.io/socket.io.js'></script>
+        <script src='/knockout-2.0.0.js'></script>
         <script src='/chromie-bundle.js'></script>
     </head>
     <body>
         <h1>Chromie test server</h1>
+        <h2 data-bind="text: state"></h2>
+        <script>
+            ko.applyBindings(window.$av.observable);
+        </script>
     </body>
 </html>

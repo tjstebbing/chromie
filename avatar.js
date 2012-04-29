@@ -7,8 +7,20 @@ var Avatar = chromie.Type.extend({
         this.services = {};
     },
 
-    connect : function(url, cb) {
-        this.soc = io.connect("http://localhost:8000");
+    connect : function(url, cb, observable) {
+        var self = this;
+        //optional observable will have connection status set on it
+        self.observable = observable ? observable : {};
+        self.observable.state = 'starting up';
+        this.soc = io.connect(url);
+        
+        this.soc.on('connect',function(){ self.observable.state = "connected"; });
+        this.soc.on('connecting',function(){ self.observable.state = "connecting"; });
+        this.soc.on('disconnect',function(){ self.observable.state = "disconnected"; });
+        this.soc.on('reconnect',function(){ self.observable.state = "reconnected"; });
+        this.soc.on('reconnecting',function(){ self.observable.state = "reconnecting"; });
+        this.soc.on('reconnect_failed',function(){ self.observable.state = "failed to reconnect"; });
+
         this.soc.on('$av.setService', _.bind(this.setService, this));
         this.soc.on('connect', function(data) {
             cb();
