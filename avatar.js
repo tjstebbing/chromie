@@ -5,6 +5,7 @@ var Avatar = chromie.Type.extend({
 
     init : function() {
         this.services = {};
+        this.queue = prx.SendQueue();
     },
 
     connect : function(url, cb, observable) {
@@ -43,9 +44,9 @@ var Avatar = chromie.Type.extend({
     },
 
     get : function(serviceName) {
-        /* Return a new ServiceProxy for a given service */
+        /* Return a new Proxy for a given service */
         if(!this.services[serviceName]) this.services[serviceName] = [];
-        var proxy = prx.ServiceProxy(this);
+        var proxy = prx.Proxy(this, serviceName);
         this.services[serviceName].push(proxy);
         return proxy;
     },
