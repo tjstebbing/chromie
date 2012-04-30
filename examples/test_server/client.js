@@ -17,6 +17,5 @@ $av.connect('http://localhost:8000', function() {
     echoProxy.send("echo", "Chromie was here!").then(function(data) {
         console.log("Data from the server:", data);
     });
-    $av.disconnect();
 }, avStatus);
 

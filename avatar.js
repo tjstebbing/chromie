@@ -5,7 +5,7 @@ var Avatar = chromie.Type.extend({
 
     init : function() {
         this.services = {};
-        this.queue = prx.SendQueue();
+        this.queue = prx.SendQueue(this);
     },
 
     connect : function(url, cb, observable) {
@@ -13,26 +13,27 @@ var Avatar = chromie.Type.extend({
         //optional observable will have connection status set on it
         self.observable = observable ? observable : {};
         self.observable.state = 'starting up';
-        this.soc = io.connect(url);
+        this.socket = io.connect(url);
        
-        this.soc.on('$av.setService', _.bind(this.setService, this));
-        this.soc.on('connect', function(data) {
+        this.socket.on('$av.setService', _.bind(this.setService, this));
+        this.socket.on('connect', function(data) {
+            self.queue.pump();
             cb();
         });
 
-        //XXX Not sure why these are not fired
-        this.soc.on('connect',function(){ self.observable.state = "connected"; });
-        this.soc.on('connecting',function(){ self.observable.state = "connecting"; });
-        this.soc.on('close',function(){ self.observable.state = "closed"; });
-        this.soc.on('disconnect',function(){ self.observable.state = "disconnected"; });
-        this.soc.on('reconnect',function(){ self.observable.state = "reconnected"; });
-        this.soc.on('reconnecting',function(){ self.observable.state = "reconnecting"; });
-        this.soc.on('reconnect_failed',function(){ self.observable.state = "failed to reconnect"; });
+        //XXX Not sure why these are not always fired
+        this.socket.on('connect',function(){ self.observable.state = "connected"; });
+        this.socket.on('connecting',function(){ self.observable.state = "connecting"; });
+        this.socket.on('close',function(){ self.observable.state = "closed"; });
+        this.socket.on('disconnect',function(){ self.observable.state = "disconnected"; });
+        this.socket.on('reconnect',function(){ self.observable.state = "reconnected"; });
+        this.socket.on('reconnecting',function(){ self.observable.state = "reconnecting"; });
+        this.socket.on('reconnect_failed',function(){ self.observable.state = "failed to reconnect"; });
 
     },
 
     disconnect : function() {
-        if(this.soc) this.soc.disconnect();
+        if(this.socket) this.socket.disconnect();
     },
 
     setService : function(data) {
