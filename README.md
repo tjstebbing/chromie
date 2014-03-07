@@ -1,5 +1,6 @@
-
 ![Chromie](https://github.com/pomke/chromie/raw/master/docs/chromie-logo-github.png)
+
+# Chromie is defunct and not maintained any longer! sorry!
 
 ## What is Chromie?
 
